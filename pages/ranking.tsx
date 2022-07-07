@@ -1,40 +1,20 @@
 import type { NextPage } from 'next';
-import { useCollection } from 'react-firebase-hooks/firestore';
-import { collection, DocumentData } from 'firebase/firestore';
+import { DocumentData } from 'firebase/firestore';
 
 import { Footer } from '../components/Footer';
 import styles from '../styles/Home.module.css';
 
-import firebase from './firebase';
-
-const Ranking: NextPage = () => {
-  let rows;
-  const db = firebase.firestore();
-
-  const [allTitles, allTitlesLoading] = useCollection(
-    collection(db, 'titles'),
-    {},
-  );
-
-  if (!allTitlesLoading && allTitles) {
-    const mappedTitles: Array<DocumentData> = allTitles.docs.map((doc) => {
-      return {
-        id: doc.id,
-        ...doc.data(),
-      };
+const Ranking: NextPage = ({ titles }: DocumentData) => {
+  const rows = titles
+    .sort((a: DocumentData, b: DocumentData) => (a.score > b.score ? -1 : 1))
+    .map((x: DocumentData) => {
+      return (
+        <tr key={x.id}>
+          <td className="p-3">{x.score}</td>
+          <td className="p-3">{x.title}</td>
+        </tr>
+      );
     });
-
-    rows = mappedTitles
-      .sort((a: DocumentData, b: DocumentData) => (a.score > b.score ? -1 : 1))
-      .map((x: DocumentData) => {
-        return (
-          <tr key={x.id}>
-            <td className="p-3">{x.score}</td>
-            <td className="p-3">{x.title}</td>
-          </tr>
-        );
-      });
-  }
 
   return (
     <div className={`${styles.container} flex-auto`}>
@@ -54,6 +34,25 @@ const Ranking: NextPage = () => {
       {Footer()}
     </div>
   );
+};
+
+Ranking.getInitialProps = async () => {
+  let titles: Array<DocumentData> = [];
+
+  const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/title`, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error(`Error: ${response.status}`);
+  }
+
+  titles = await response.json();
+
+  return { titles };
 };
 
 export default Ranking;

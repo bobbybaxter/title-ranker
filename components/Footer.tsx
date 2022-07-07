@@ -1,3 +1,4 @@
+// TODO: figure out an auth solution
 import { useRouter } from 'next/router';
 
 export function Footer() {

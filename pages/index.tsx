@@ -9,41 +9,39 @@ import { useRouter } from 'next/router';
 import styles from '../styles/Home.module.css';
 import { Footer } from '../components/Footer';
 
-import firebase from './firebase';
-
-const db = firebase.firestore();
+interface Title {
+  title: string;
+  score: number;
+}
 
 const Home: NextPage = ({ titles }: DocumentData) => {
   const router = useRouter();
 
-  function addVote(e: MouseEvent<HTMLButtonElement>) {
+  async function addVote(e: MouseEvent<HTMLButtonElement>) {
     const target = e.target as Element;
-    const selectedTitle = titles.find(
+    const selectedTitle: Title = titles.find(
       (x: DocumentData) => x.title === target.innerHTML,
     );
-    const unselectedTitle = titles.find(
+    const unselectedTitle: Title = titles.find(
       (x: DocumentData) => x.title !== target.innerHTML,
     );
     const selectedTitleNewScore = selectedTitle.score + 1;
     const unselectedTitleNewScore = unselectedTitle.score - 1;
 
-    db.collection('titles')
-      .doc(selectedTitle.id)
-      .set({
-        title: selectedTitle.title,
-        score: selectedTitleNewScore,
-      })
-      .then(() => {
-        db.collection('titles')
-          .doc(unselectedTitle.id)
-          .set({
-            title: unselectedTitle.title,
-            score: unselectedTitleNewScore,
-          })
-          .then(() => {
-            router.replace(router.asPath);
-          });
+    async function updateScore(title: DocumentData, newScore: number) {
+      await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/title/${title.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title: title.title,
+          score: newScore,
+        }),
       });
+    }
+
+    await updateScore(selectedTitle, selectedTitleNewScore);
+    await updateScore(unselectedTitle, unselectedTitleNewScore);
+    router.replace(router.asPath);
   }
 
   return (
@@ -103,24 +101,25 @@ const Home: NextPage = ({ titles }: DocumentData) => {
   );
 };
 
-Home.getInitialProps = async () => {
-  const allTitles: Array<DocumentData> = [];
+export async function getServerSideProps() {
+  let allTitles: Array<DocumentData> = [];
 
-  try {
-    const allTitlesRef = await db.collection('titles').get();
-    allTitlesRef.forEach((x) =>
-      allTitles.push({
-        id: x.id,
-        ...x.data(),
-      }),
-    );
-  } catch (e) {
-    console.error('e :>>', e);
+  const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/title`, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error(`Error: ${response.status}`);
   }
+
+  allTitles = await response.json();
 
   const titles = _.sampleSize(allTitles, 2);
 
-  return { titles };
-};
+  return { props: { titles } };
+}
 
 export default Home;
