@@ -5,6 +5,7 @@ import { DocumentData } from 'firebase/firestore';
 import _ from 'lodash';
 import clsx from 'clsx';
 import { useRouter } from 'next/router';
+import Link from 'next/link';
 
 import styles from '../styles/Home.module.css';
 import { Footer } from '../components/Footer';
@@ -45,58 +46,87 @@ const Home: NextPage = ({ titles }: DocumentData) => {
   }
 
   return (
-    <div className={styles.container}>
+    <div>
       <Head>
         <title>Title Ranker</title>
         <meta name="description" content="Title Ranker" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      {titles && (
-        <main className={styles.main}>
-          <h2 className={styles.title}>Which title is better?</h2>
+      <div className="drawer">
+        <input id="my-drawer" type="checkbox" className="drawer-toggle" />
 
-          <div className={styles.grid}>
-            <button
-              type="button"
-              className={clsx(`
-                btn
-                btn-outline
-                p-3
-                m-3
-                transition-colors
-                hover:text-white
-                hover:bg-blue-500
-                duration-500
-                `)}
-              onClick={addVote}
+        <div className="drawer-content">
+          <div className="flex justify-end">
+            <label
+              htmlFor="my-drawer"
+              className="btn btn-outline border-hidden"
             >
-              {titles[0]?.title}
-            </button>
-
-            <div>vs</div>
-
-            <button
-              type="button"
-              className={clsx(`
-                btn
-                btn-outline
-                p-3
-                m-3
-                transition-colors
-                hover:text-white
-                hover:bg-blue-500
-                duration-500
-                `)}
-              onClick={addVote}
-            >
-              {titles[1]?.title}
-            </button>
+              <svg viewBox="0 0 100 80" width="40" height="40">
+                <rect width="100" height="10"></rect>
+                <rect y="30" width="100" height="10"></rect>
+                <rect y="60" width="100" height="10"></rect>
+              </svg>
+            </label>
           </div>
-        </main>
-      )}
 
-      {Footer()}
+          <div className={styles.container}>
+            {titles && (
+              <main className={styles.main}>
+                <h2 className={styles.title}>Which title is better?</h2>
+
+                <div className={styles.grid}>
+                  <button
+                    type="button"
+                    className={clsx(`
+                btn
+                btn-outline
+                p-3
+                m-3
+                transition-colors
+                hover:text-white
+                hover:bg-blue-500
+                duration-500
+                `)}
+                    onClick={addVote}
+                  >
+                    {titles[0]?.title}
+                  </button>
+
+                  <div>vs</div>
+
+                  <button
+                    type="button"
+                    className={clsx(`
+                btn
+                btn-outline
+                p-3
+                m-3
+                transition-colors
+                hover:text-white
+                hover:bg-blue-500
+                duration-500
+                `)}
+                    onClick={addVote}
+                  >
+                    {titles[1]?.title}
+                  </button>
+                </div>
+              </main>
+            )}
+            {Footer()}
+          </div>
+        </div>
+
+        <div className="drawer-side">
+          <label htmlFor="my-drawer" className="drawer-overlay"></label>
+          <ul className="menu p-4 w-40 bg-base-100 text-base-content">
+            <li>
+              <Link href="/admin">Admin</Link>
+            </li>
+          </ul>
+        </div>
+      </div>
     </div>
   );
 };

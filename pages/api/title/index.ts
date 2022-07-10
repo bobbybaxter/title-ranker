@@ -10,7 +10,7 @@ export default async function handler(
 ) {
   const {
     method,
-    body: { title: title },
+    body: title,
   } = req;
 
   switch (method) {
