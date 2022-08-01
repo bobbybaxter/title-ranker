@@ -1,9 +1,18 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 html,
 body {
   padding: 0;
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen,
-    Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
+  font-family: Helvetica Neue, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen,
+    Ubuntu, Cantarell, Fira Sans, Droid Sans, sans-serif;
+  /* font-family: 'Exo 2'; */
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Exo 2', sans-serif;
 }
 
 a {
@@ -13,4 +22,35 @@ a {
 
 * {
   box-sizing: border-box;
+}
+
+table {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.table :where(th, td) {
+  white-space: inherit;
+}
+
+.modal-body {
+  display: flex;
+  flex-direction: row;
+  padding-top: 10px;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 25px;
+}
+
+.modal-style {
+  background: white;
+  width: 50vh;
+  height: 50vh;
+  border-radius: 15px;
+  padding: 15px;
+  overflow-y: hidden;
 }
