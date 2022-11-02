@@ -171,7 +171,9 @@ export async function getServerSideProps() {
 
   function selectTitles() {
     if (blankTitles.length) {
-      return [_.sample(blankTitles), _.sample(allTitles)];
+      const firstTitle = _.sample(blankTitles);
+      const secondTitle = _.sample(allTitles.filter((x) => x !== firstTitle));
+      return [firstTitle, secondTitle];
     } else {
       return _.sampleSize(allTitles, 2);
     }
