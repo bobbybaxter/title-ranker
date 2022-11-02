@@ -98,25 +98,27 @@ const Ranking: NextPage = ({ titles }: DocumentData) => {
     <div className={`${styles.container} flex-auto`}>
       <h1 className="text-3xl p-3 m-3 text-center">Title Ranks</h1>
       <div className="flex w-full place-content-center">
-        <button
-            onClick={() => handleCreateModalOpen()}
-            className="w-1/2 mb-6 p-0 btn border-none"
-          >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="h-6 w-6"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            strokeWidth="2"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M12 4v16m8-8H4"
-            />
-          </svg>
-        </button>
+        {
+          authenticated && <button
+              onClick={() => handleCreateModalOpen()}
+              className="w-1/2 mb-6 p-0 btn border-none"
+            >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-6 w-6"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth="2"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M12 4v16m8-8H4"
+              />
+            </svg>
+          </button>
+        }
       </div>
       <div className="mb-24 place-content-center place-items-center text-center">
         <table className="w-auto table table-zebra border">
