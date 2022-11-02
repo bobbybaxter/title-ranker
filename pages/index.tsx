@@ -1,4 +1,4 @@
-import { MouseEvent } from 'react';
+import React, { MouseEvent, useEffect, useState } from 'react';
 import type { NextPage } from 'next';
 import Head from 'next/head';
 import { DocumentData } from 'firebase/firestore';
@@ -16,7 +16,17 @@ interface Title {
 }
 
 const Home: NextPage = ({ titles }: DocumentData) => {
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const router = useRouter();
+
+  function refreshData() {
+    router.replace(router.asPath);
+    setIsRefreshing(true);
+  }
+
+  useEffect(() => {
+    setIsRefreshing(false);
+  }, [titles]);
 
   async function addVote(e: MouseEvent<HTMLButtonElement>) {
     const target = e.target as Element;
@@ -42,7 +52,7 @@ const Home: NextPage = ({ titles }: DocumentData) => {
 
     await updateScore(selectedTitle, selectedTitleNewScore);
     await updateScore(unselectedTitle, unselectedTitleNewScore);
-    router.replace(router.asPath);
+    refreshData();
   }
 
   return (
@@ -76,41 +86,51 @@ const Home: NextPage = ({ titles }: DocumentData) => {
                 <h2 className={styles.title}>Which title is better?</h2>
 
                 <div className={styles.grid}>
-                  <button
-                    type="button"
-                    className={clsx(`
-                btn
-                btn-outline
-                p-3
-                m-3
-                transition-colors
-                hover:text-white
-                hover:bg-blue-500
-                duration-500
-                `)}
-                    onClick={addVote}
-                  >
-                    {titles[0]?.title}
-                  </button>
+                  {isRefreshing ? (
+                    <div className="flex items-center justify-center">
+                      <div
+                        className={`${styles.spinner} w-8 h-8 border-4 border-blue-200 rounded-full animate-spin`}
+                      ></div>
+                    </div>
+                  ) : (
+                    <>
+                      <button
+                        type="button"
+                        className={clsx(`
+                            btn
+                            btn-outline
+                            p-3
+                            m-3
+                            transition-colors
+                            hover:text-white
+                            hover:bg-blue-500
+                            duration-500
+                          `)}
+                        onClick={addVote}
+                      >
+                        {titles[0]?.title}
+                      </button>
 
-                  <div>vs</div>
+                      <div>vs</div>
 
-                  <button
-                    type="button"
-                    className={clsx(`
-                btn
-                btn-outline
-                p-3
-                m-3
-                transition-colors
-                hover:text-white
-                hover:bg-blue-500
-                duration-500
-                `)}
-                    onClick={addVote}
-                  >
-                    {titles[1]?.title}
-                  </button>
+                      <button
+                        type="button"
+                        className={clsx(`
+                            btn
+                            btn-outline
+                            p-3
+                            m-3
+                            transition-colors
+                            hover:text-white
+                            hover:bg-blue-500
+                            duration-500
+                          `)}
+                        onClick={addVote}
+                      >
+                        {titles[1]?.title}
+                      </button>
+                    </>
+                  )}
                 </div>
               </main>
             )}
@@ -147,7 +167,17 @@ export async function getServerSideProps() {
 
   allTitles = await response.json();
 
-  const titles = _.sampleSize(allTitles, 2);
+  const blankTitles = allTitles.filter((x) => x.score === 0);
+
+  function selectTitles() {
+    if (blankTitles.length) {
+      return [_.sample(blankTitles), _.sample(allTitles)];
+    } else {
+      return _.sampleSize(allTitles, 2);
+    }
+  }
+
+  const titles = selectTitles();
 
   return { props: { titles } };
 }
