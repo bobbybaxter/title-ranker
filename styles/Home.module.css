@@ -106,6 +106,10 @@
   margin-left: 0.5rem;
 }
 
+.spinner {
+  border-top-color: transparent;
+}
+
 @media (max-width: 600px) {
   .grid {
     width: 100%;
