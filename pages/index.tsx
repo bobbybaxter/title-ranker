@@ -6,16 +6,18 @@ import _ from 'lodash';
 import clsx from 'clsx';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
+import { calculateExpectedOutcome } from '../utils/calculate-expected-outcome';
+import { updateScore } from '../utils/update-score';
+import { calculateK } from '../utils/calculate-k';
 
 import styles from '../styles/Home.module.css';
 import { Footer } from '../components/Footer';
 
-interface Title {
-  title: string;
-  score: number;
-}
-
-const Home: NextPage = ({ titles }: DocumentData) => {
+const Home: NextPage<{ titles: DocumentData[]; highestRatingAmt: number; lowestRatingAmt: number }> = ({
+  titles,
+  highestRatingAmt,
+  lowestRatingAmt,
+}) => {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const router = useRouter();
 
@@ -30,28 +32,43 @@ const Home: NextPage = ({ titles }: DocumentData) => {
 
   async function addVote(e: MouseEvent<HTMLButtonElement>) {
     const target = e.target as Element;
-    const selectedTitle: Title = titles.find(
-      (x: DocumentData) => x.title === target.innerHTML,
+    const selectedTitle = titles.find((x) => x.title === target.innerHTML);
+    const unselectedTitle = titles.find((x) => x.title !== target.innerHTML);
+    const { expectedOutcomeA, expectedOutcomeB } = calculateExpectedOutcome(
+      selectedTitle?.score,
+      unselectedTitle?.score,
     );
-    const unselectedTitle: Title = titles.find(
-      (x: DocumentData) => x.title !== target.innerHTML,
-    );
-    const selectedTitleNewScore = selectedTitle.score + 1;
-    const unselectedTitleNewScore = unselectedTitle.score - 1;
 
-    async function updateScore(title: DocumentData, newScore: number) {
-      await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/title/${title.id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          title: title.title,
-          score: newScore,
-        }),
-      });
-    }
+    const selectedTitleNewScore =
+      selectedTitle?.score +
+      calculateK({
+        ratingAmt: selectedTitle?.ratingAmt,
+        minRatings: lowestRatingAmt,
+        maxRatings: highestRatingAmt,
+      }) *
+        (1 - expectedOutcomeA);
 
-    await updateScore(selectedTitle, selectedTitleNewScore);
-    await updateScore(unselectedTitle, unselectedTitleNewScore);
+    const unselectedTitleNewScore =
+      unselectedTitle?.score +
+      calculateK({
+        ratingAmt: unselectedTitle?.ratingAmt,
+        minRatings: lowestRatingAmt,
+        maxRatings: highestRatingAmt,
+      }) *
+        (0 - expectedOutcomeB);
+
+    await updateScore({
+      ...selectedTitle,
+      score: selectedTitleNewScore,
+      ratingAmt: selectedTitle?.ratingAmt + 1,
+    });
+
+    await updateScore({
+      ...unselectedTitle,
+      score: unselectedTitleNewScore,
+      ratingAmt: unselectedTitle?.ratingAmt + 1,
+    });
+
     refreshData();
   }
 
@@ -68,10 +85,7 @@ const Home: NextPage = ({ titles }: DocumentData) => {
 
         <div className="drawer-content">
           <div className="flex justify-end">
-            <label
-              htmlFor="my-drawer"
-              className="btn btn-outline border-hidden"
-            >
+            <label htmlFor="my-drawer" className="btn btn-outline border-hidden">
               <svg viewBox="0 0 100 80" width="40" height="40">
                 <rect width="100" height="10"></rect>
                 <rect y="30" width="100" height="10"></rect>
@@ -152,8 +166,6 @@ const Home: NextPage = ({ titles }: DocumentData) => {
 };
 
 export async function getServerSideProps() {
-  let allTitles: Array<DocumentData> = [];
-
   const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/title`, {
     method: 'GET',
     headers: {
@@ -165,14 +177,14 @@ export async function getServerSideProps() {
     throw new Error(`Error: ${response.status}`);
   }
 
-  allTitles = await response.json();
+  const { titles: allTitles, highestRatingAmt, lowestRatingAmt } = await response.json();
 
-  const blankTitles = allTitles.filter((x) => x.score === 0);
+  const blankTitles = allTitles.filter((x: DocumentData) => x.ratingAmt === 0);
 
   function selectTitles() {
     if (blankTitles.length) {
       const firstTitle = _.sample(blankTitles);
-      const secondTitle = _.sample(allTitles.filter((x) => x !== firstTitle));
+      const secondTitle = _.sample(allTitles.filter((x: DocumentData) => x !== firstTitle));
       return [firstTitle, secondTitle];
     } else {
       return _.sampleSize(allTitles, 2);
@@ -181,7 +193,7 @@ export async function getServerSideProps() {
 
   const titles = selectTitles();
 
-  return { props: { titles } };
+  return { props: { titles, highestRatingAmt, lowestRatingAmt } };
 }
 
 export default Home;
