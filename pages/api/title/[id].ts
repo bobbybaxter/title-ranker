@@ -4,10 +4,7 @@ import { DocumentData } from 'firebase/firestore';
 import firebase from '../firebase';
 const db = firebase.firestore();
 
-export default async function handler(
-  req: NextApiRequest,
-  res: NextApiResponse,
-) {
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const {
     query: { id },
     body: title,
@@ -36,9 +33,7 @@ export default async function handler(
           title: title?.title,
           score: title?.score,
         });
-      res
-        .status(200)
-        .end(`Updated Title: ${title?.title} Score: ${title?.score}`);
+      res.status(200).end(`Updated Title: ${title?.title} Score: ${title?.score}`);
       break;
     case 'DELETE':
       await db

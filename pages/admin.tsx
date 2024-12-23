@@ -1,26 +1,24 @@
-// Import FirebaseAuth and firebase.
 import type { NextPage } from 'next';
-import StyledFirebaseAuth from 'react-firebaseui/StyledFirebaseAuth';
-import firebase from 'firebase/compat/app';
-import app from './api/firebase';
-
-const auth = app.auth();
-
-// Configure FirebaseUI.
-const uiConfig = {
-  // Popup signin flow rather than redirect flow.
-  signInFlow: 'popup',
-  // Redirect to /signedIn after sign in is successful.
-  // Alternatively you can provide a callbacks.signInSuccess function.
-  signInSuccessUrl: '/',
-  // We will display Google as auth providers.
-  signInOptions: [firebase.auth.GoogleAuthProvider.PROVIDER_ID],
-};
+import { useRouter } from 'next/router'; // Import the useRouter hook
+import { GoogleLoginButton } from 'react-social-login-buttons';
+import { GoogleAuthProvider, getAuth, signInWithPopup } from 'firebase/auth';
 
 const Admin: NextPage = () => {
+  const router = useRouter(); // Initialize the router
+
+  const handleSignIn = async () => {
+    try {
+      await signInWithPopup(getAuth(), new GoogleAuthProvider());
+      router.back(); // Navigate back to the previous page
+    } catch (error) {
+      console.error('Error during sign-in:', error);
+      // You can also display an error message to the user here
+    }
+  };
+
   return (
     <div className="d-flex flex-column align-items-center justify-content-center mt-3">
-      <StyledFirebaseAuth uiConfig={uiConfig} firebaseAuth={auth} />
+      <GoogleLoginButton onClick={handleSignIn} />
     </div>
   );
 };

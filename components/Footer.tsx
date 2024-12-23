@@ -6,10 +6,7 @@ export function Footer() {
 
   return (
     <footer className="btm-nav">
-      <button
-        className="bg-blue-400 text-blue-100"
-        onClick={() => router.push('/')}
-      >
+      <button className="bg-blue-400 text-blue-100" onClick={() => router.push('/')}>
         <svg
           xmlns="http://www.w3.org/2000/svg"
           className="h-5 w-5"
@@ -27,10 +24,7 @@ export function Footer() {
         <span className="btm-nav-label">Home</span>
       </button>
 
-      <button
-        className="bg-amber-200 text-amber-700"
-        onClick={() => router.push('/ranking')}
-      >
+      <button className="bg-amber-200 text-amber-700" onClick={() => router.push('/ranking')}>
         <svg
           xmlns="http://www.w3.org/2000/svg"
           className="h-5 w-5"
