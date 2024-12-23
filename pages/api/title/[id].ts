@@ -32,6 +32,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         .set({
           title: title?.title,
           score: title?.score,
+          ratingAmt: title?.ratingAmt,
         });
       res.status(200).end(`Updated Title: ${title?.title} Score: ${title?.score}`);
       break;

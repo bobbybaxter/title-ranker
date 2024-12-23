@@ -33,10 +33,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         lowestRatingAmt: titleWithLeastRatings.ratingAmt,
       });
       break;
+
     case 'POST':
       await db.collection('titles').add({
         title: title as string,
-        score: 0,
+        score: 1000,
+        ratingAmt: 0,
       });
 
       res.status(201).end(`${title} added.`);
