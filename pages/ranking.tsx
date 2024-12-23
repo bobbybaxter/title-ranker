@@ -38,7 +38,7 @@ const Ranking: NextPage = ({ titles }: DocumentData) => {
 
   const rows = titles
     .sort((a: DocumentData, b: DocumentData) => (a.score > b.score ? -1 : 1))
-    .map((x: DocumentData) => {
+    .map((x: DocumentData, i: number) => {
       return (
         <tr key={x.id}>
           {authenticated && (
@@ -62,7 +62,9 @@ const Ranking: NextPage = ({ titles }: DocumentData) => {
               </button>
             </td>
           )}
+          <td className="py-1 px-2">{i + 1}</td>
           <td className="py-1 px-2">{x.score}</td>
+          <td className="py-1 px-2">{x.ratingAmt}</td>
           <td className="py-1 px-2 break-normal">{x.title}</td>
           {authenticated && (
             <td className="py-1 px-2">
@@ -108,7 +110,9 @@ const Ranking: NextPage = ({ titles }: DocumentData) => {
           <thead>
             <tr>
               {authenticated && <td className="py-1 px-2">Edit</td>}
+              <th className="py-1 px-2">Rank</th>
               <th className="py-1 px-2">Score</th>
+              <th className="py-1 px-2">Ratings</th>
               <th className="py-1 px-2">Title</th>
               {authenticated && <td className="py-1 px-2">Del</td>}
             </tr>

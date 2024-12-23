@@ -39,23 +39,25 @@ const Home: NextPage<{ titles: DocumentData[]; highestRatingAmt: number; lowestR
       unselectedTitle?.score,
     );
 
-    const selectedTitleNewScore =
+    const selectedTitleNewScore = Math.round(
       selectedTitle?.score +
-      calculateK({
-        ratingAmt: selectedTitle?.ratingAmt,
-        minRatings: lowestRatingAmt,
-        maxRatings: highestRatingAmt,
-      }) *
-        (1 - expectedOutcomeA);
+        calculateK({
+          ratingAmt: selectedTitle?.ratingAmt,
+          minRatings: lowestRatingAmt,
+          maxRatings: highestRatingAmt,
+        }) *
+          (1 - expectedOutcomeA),
+    );
 
-    const unselectedTitleNewScore =
+    const unselectedTitleNewScore = Math.round(
       unselectedTitle?.score +
-      calculateK({
-        ratingAmt: unselectedTitle?.ratingAmt,
-        minRatings: lowestRatingAmt,
-        maxRatings: highestRatingAmt,
-      }) *
-        (0 - expectedOutcomeB);
+        calculateK({
+          ratingAmt: unselectedTitle?.ratingAmt,
+          minRatings: lowestRatingAmt,
+          maxRatings: highestRatingAmt,
+        }) *
+          (0 - expectedOutcomeB),
+    );
 
     await updateScore({
       ...selectedTitle,
